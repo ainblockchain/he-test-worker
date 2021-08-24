@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    /* Basic Options */
+    "target": "es6",
+    "module": "commonjs",
+    "allowJs": true,
+    "outDir": "./dist",
+
+    /* Strict Type-Checking Options */
+    "strict": true,
+    "esModuleInterop": true,
+
+    /* Advanced Options */
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "extends": "@tsconfig/node14/tsconfig.json"
+}

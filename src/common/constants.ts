@@ -1,0 +1,1 @@
+export const NODE_URL = 'http://node.ainetwork.ai:8080';
