@@ -2,7 +2,7 @@
   "name": "he-test-worker",
   "license": "MIT",
   "scripts": {
-    "start": "tsc && NODE_ENV=production node dist/index.js",
+    "start": "npx tsc && NODE_ENV=production node dist/index.js",
     "dev": "NODE_ENV=development npx ts-node src/index.ts"
   },
   "devDependencies": {
