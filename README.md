@@ -13,8 +13,9 @@ docker build -t he-test-worker .
 docker run -dp [EXPOSED_PORT]:3000 he-test-worker
 ```
 
-## Generate homomorphic encrypted data
+## Homomorphic Encryption
 * Use [ain-js](https://github.com/ainblockchain/ain-js/tree/master/src/he)
+### Encrypt data 
 ```
 import Ain from '@ainblockchain/ain-js';
 
@@ -23,6 +24,15 @@ await ain.he.init();
 const TEST_DATA = Float64Array.from({ length: ain.he.seal.encoder.slotCount }).map((x, i) => i);
 const cipherText = ain.he.encrypt(TEST_DATA);
 const encrypted = cipherText.save(); // base64 string
+```
+### Decrypt result
+```
+import Ain from '@ainblockchain/ain-js';
+
+const ain = new Ain('http://node.ainetwork.ai:8080');
+await ain.he.init();
+const result = ... // get result from he-test-worker
+const decrypted = ain.he.decrypt(result); // decrypted as Float64Array format
 ```
 
 ## APIs
