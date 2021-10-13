@@ -24,7 +24,7 @@ export const double = async (
     // save as base64 string
     const result = cOp1.save();
     res.json({ result });
-  } catch (e) {
+  } catch (e: any) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: e.message,
     });
@@ -51,8 +51,25 @@ export const add = async (
 
     const result = cOp1.save();
     res.json({ result });
-  } catch (e) {
-    console.log(e);
+  } catch (e: any) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: e.message,
+    });
+  }
+}
+
+export const request = async (
+  req: express.Request,
+  res: express.Response,
+) => {
+  try {
+    const ainJs = new AinJs(Const.NODE_URL);
+    await ainJs.he.init();
+
+    console.log(req.body.transaction.tx_body.operation);
+
+    res.sendStatus(200);
+  } catch (e: any) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: e.message,
     });
