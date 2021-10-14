@@ -1,15 +1,12 @@
 import express from 'express';
 import { StatusCodes } from 'http-status-codes';
-import AinJs from '@ainblockchain/ain-js';
-import * as Const from '../common/constants';
 
 export const double = async (
   req: express.Request,
   res: express.Response,
 ) => {
   try {
-    const ainJs = new AinJs(Const.NODE_URL);
-    await ainJs.he.init();
+    const ainJs = res.locals.ainJs;
     const { operand } = req.body;
 
     // create ciphertext instance
@@ -36,8 +33,7 @@ export const add = async (
   res: express.Response,
 ) => {
   try {
-    const ainJs = new AinJs(Const.NODE_URL);
-    await ainJs.he.init();
+    const ainJs = res.locals.ainJs;
     const { operand1, operand2 } = req.body;
 
     // create ciphertext instance
@@ -63,8 +59,7 @@ export const request = async (
   res: express.Response,
 ) => {
   try {
-    const ainJs = new AinJs(Const.NODE_URL);
-    await ainJs.he.init();
+    const ainJs = res.locals.ainJs;
 
     console.log(req.body.transaction.tx_body.operation);
 
