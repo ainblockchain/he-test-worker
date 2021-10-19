@@ -13,12 +13,15 @@ app.use(express.urlencoded({
 }));
 app.use(async (req, res, next) => {
   res.locals.ainJs = new AinJs(Const.NODE_URL);
+  const address = res.locals.ainJs.wallet.addFromHDWallet(Const.MNEMONIC_WORDS);
+  res.locals.ainJs.wallet.setDefaultAccount(address);
+  res.locals.mainAddress = address;
   await res.locals.ainJs.he.init();
   next();
 })
 
 app.get('/', (req: express.Request, res: express.Response) => {
-  res.send('Homomorphic Encryption Evaluator Worker');
+  res.send(`Homomorphic Encryption Evaluator Worker (${res.locals.mainAddress})`);
 });
 
 // health checking
