@@ -61,7 +61,7 @@ export const request = async (
   try {
     const ainJs = res.locals.ainJs;
 
-    console.log(req.body.transaction.tx_body.operation);
+    console.log(req.body);
 
     res.sendStatus(200);
   } catch (e: any) {
