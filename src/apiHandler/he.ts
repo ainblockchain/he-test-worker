@@ -96,6 +96,7 @@ export const request = async (
     } else {
       requestList.push(requestId);
     }
+    console.log(`Request: ${ref}`);
     console.log(value);
 
     const op1: any = await axios.get(`${NODE_URL}/get_value?ref=${value.operand1}`);
@@ -123,6 +124,7 @@ export const request = async (
     }
     const txRes = await ainJs.sendTransaction(tx)
     if (txRes.result.code === 0) {
+      console.log(`Result: ${result.substring(0, 15)}\n`);
       res.sendStatus(200);
     } else {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
