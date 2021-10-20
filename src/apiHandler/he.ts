@@ -64,27 +64,6 @@ export const request = async (
 ) => {
   try {
     const ainJs = res.locals.ainJs;
-    /** req.body
-      {
-        function: {
-          function_type: 'REST',
-          function_id: 'requestEvent',
-          event_listener: 'http://61.74.65.67:17999/he/request',
-          service_name: 'https://ainetwork.ai'
-        },
-        transaction: {
-          tx_body: { operation: [Object], nonce: -1, timestamp: 1634614976395 },
-          signature: '0x53dc17b6410700a8c0929550fecdd472629230b66df656e6ab494bc204ee745b49a4fbdf68bd342ac69492c13568ddce6b078f81d2925834ad8690f1f1fba2c30856e3335413fc8a6bef6a8e0811a8bbddcdc8b214838daf2e7bb739fc84ecee1c',
-          hash: '0x53dc17b6410700a8c0929550fecdd472629230b66df656e6ab494bc204ee745b',
-          address: '0xd7555b3f4aC44FB9661cCF1A32B2Dc8035D99ecc',
-          extra: {
-            created_at: 1634614978804,
-            executed_at: 1634614978804,
-            gas: [Object]
-          }
-        }
-      }
-    */
     const { function: func, transaction } = req.body;
     // TODO: check transaction signature?
     const { ref, value } = transaction.tx_body.operation;
@@ -96,8 +75,8 @@ export const request = async (
     } else {
       requestList.push(requestId);
     }
-    console.log(`Request: ${ref}`);
-    console.log(value);
+    console.log(`[+] Request received: ${ref}`)
+    console.log(`[+] payload: ${JSON.stringify(value)}`);
 
     const op1: any = await axios.get(`${NODE_URL}/get_value?ref=${value.operand1}`);
     const op2: any = await axios.get(`${NODE_URL}/get_value?ref=${value.operand2}`);
@@ -124,15 +103,16 @@ export const request = async (
     }
     const txRes = await ainJs.sendTransaction(tx)
     if (txRes.result.code === 0) {
-      console.log(`Result: ${result.substring(0, 15)}\n`);
+      console.log(`[+] Result for ${requestId}: ${result.substring(0, 15)}`);
       res.sendStatus(200);
     } else {
+      console.log(`[-] sendTransaction failed: ${txRes.result.error_message}`);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         message: txRes.result.error_message
       })
     }
   } catch (e: any) {
-    console.log(e);
+    console.log(`[-] Internal error: ${e.message}`);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       message: e.message,
     });

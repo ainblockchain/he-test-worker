@@ -3,8 +3,13 @@ import heRouter from './api/he';
 import AinJs from '@ainblockchain/ain-js';
 import * as Const from './common/constants';
 
+process.setMaxListeners(100);
+
 const app = express();
 const port = process.env.NODE_PORT || 5000;
+const ainJs = new AinJs(Const.NODE_URL);
+const address = ainJs.wallet.addFromHDWallet(Const.MNEMONIC_WORDS);
+ainJs.wallet.setDefaultAccount(address);
 
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ 
@@ -12,9 +17,7 @@ app.use(express.urlencoded({
   extended: true,
 }));
 app.use(async (req, res, next) => {
-  res.locals.ainJs = new AinJs(Const.NODE_URL);
-  const address = res.locals.ainJs.wallet.addFromHDWallet(Const.MNEMONIC_WORDS);
-  res.locals.ainJs.wallet.setDefaultAccount(address);
+  res.locals.ainJs = ainJs;
   res.locals.mainAddress = address;
   await res.locals.ainJs.he.init();
   next();
