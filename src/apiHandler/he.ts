@@ -89,10 +89,12 @@ export const request = async (
     ainJs.he.seal.evaluator.add(cOp1, cOp2, cOp1);
 
     const result = cOp1.save();
+		console.log(`[+] Result for ${requestId}: ${result.substring(0, 15)}...`);
+		const resultRef = `/apps/he_health_care/tasks/response/${value.user_address}/${requestId}`;
     const tx = {
       operation: {
         type: 'SET_VALUE',
-        ref: `/apps/he_health_care/tasks/response/${value.user_address}/${requestId}`,
+        ref: resultRef,
         value: {
           result,
           worker_address: res.locals.mainAddress
@@ -103,7 +105,7 @@ export const request = async (
     }
     const txRes = await ainJs.sendTransaction(tx)
     if (txRes.result.code === 0) {
-      console.log(`[+] Result for ${requestId}: ${result.substring(0, 15)}`);
+			console.log(`[+] Write result to '${resultRef}'`);
       res.sendStatus(200);
     } else {
       console.log(`[-] sendTransaction failed: ${txRes.result.error_message}`);
