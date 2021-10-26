@@ -106,6 +106,7 @@ export const request = async (
     const txRes = await ainJs.sendTransaction(tx)
     if (txRes.result.code === 0) {
 			console.log(`[+] Write result to '${resultRef}'`);
+      console.log(`[+] tx result: ${JSON.stringify(txRes)}`)
       res.sendStatus(200);
     } else {
       console.log(`[-] sendTransaction failed: ${txRes.result.error_message}`);
