@@ -49,3 +49,10 @@ const decrypted = ain.he.decrypt(result); // decrypted as Float64Array format
 * Response
   * `result`: encrypted base64 string
     * encrypted result of `operand1 + operand2`
+### [POST] `/he/request`
+* Endpoint for blockchain based HE calculation
+  * DO NOT CALL THIS ENDPOINT DIRECTLY
+* Body parameters
+  * `function`
+    * blockchain function setting parameters
+  * `
