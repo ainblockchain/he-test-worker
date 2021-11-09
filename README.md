@@ -53,6 +53,8 @@ const decrypted = ain.he.decrypt(result); // decrypted as Float64Array format
 * Endpoint for blockchain based HE calculation
   * DO NOT CALL THIS ENDPOINT DIRECTLY
 * Body parameters
-  * `function`
-    * blockchain function setting parameters
-  * `
+  * `function`: blockchain function setting parameters
+  * `transaction`: transaction info which caused this API call
+    * `tx_body`
+      * `ref`: reference path of blockchain
+      * `value`: recorded value
