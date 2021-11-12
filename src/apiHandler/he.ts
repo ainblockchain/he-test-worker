@@ -1,61 +1,52 @@
 import express from 'express';
 import axios from 'axios';
 import { StatusCodes } from 'http-status-codes';
-import { NODE_URL } from '../common/constants';
+import { DEFAULT_HE_PARAMS } from '../common/constants';
 
 const requestList: string[] = [];
 
-export const double = async (
-  req: express.Request,
-  res: express.Response,
-) => {
-  try {
-    const ainJs = res.locals.ainJs;
-    const { operand } = req.body;
-
-    // create ciphertext instance
-    const cOp1 = ainJs.he.seal.seal.CipherText();
-
-    // load from base64 string
-    cOp1.load(ainJs.he.seal.context, operand);
-
-    // doubling input value
-    ainJs.he.seal.evaluator(cOp1, cOp1, cOp1);
-
-    // save as base64 string
-    const result = cOp1.save();
-    res.json({ result });
-  } catch (e: any) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: e.message,
-    });
-  }
+const encodePlain = (he: any, value: number) => {
+  const { scaleBit } = DEFAULT_HE_PARAMS;
+  return he.seal.encoder.encode([value], Math.pow(2, scaleBit));
 }
 
-export const add = async (
-  req: express.Request,
-  res: express.Response,
-) => {
-  try {
-    const ainJs = res.locals.ainJs;
-    const { operand1, operand2 } = req.body;
+const getCardRisk = (he: any, value: any) => {
+  const {
+    op1, /* Total Cholesterol */
+    op2, /* Triglyceride */
+    op3, /* HDL-Cholesterol */
+  } = value;
+  const { seal, context } = he.seal;
+  const evaluator = seal.evaluator;
 
-    // create ciphertext instance
-    const cOp1 = ainJs.he.seal.seal.CipherText();
-    const cOp2 = ainJs.he.seal.seal.CipherText();
+  const coeff = [ 0.72976753, -0.31200519, 0.00335608 ];
+  const intercept = -12.604077534530276;
 
-    cOp1.load(ainJs.he.seal.context, operand1);
-    cOp2.load(ainJs.he.seal.context, operand2);
-    
-    ainJs.he.seal.evaluator.add(cOp1, cOp2, cOp1);
+  const ciphers = [seal.CipherText(), seal.CipherText(), seal.CipherText()];
+  ciphers[0].load(context, op1);
+  ciphers[1].load(context, op2);
+  ciphers[2].load(context, op3);
 
-    const result = cOp1.save();
-    res.json({ result });
-  } catch (e: any) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      message: e.message,
-    });
+  let enc_result = seal.CipherText();
+  enc_result = evaluator.multiplyPlain(ciphers[0], encodePlain(he, coeff[0]));
+  enc_result = evaluator.rescaleToNext(enc_result);
+  for (let i = 1; i < ciphers.length; i = i + 1) {
+    let enc_tmp = seal.CipherText();
+    enc_tmp = evaluator.multiplyPlain(ciphers[i], encodePlain(he, coeff[i]));
+    enc_tmp = evaluator.rescaleToNext(enc_tmp);
+    enc_result = evaluator.add(enc_result, enc_tmp);
   }
+  enc_result = evaluator.addPlain(enc_result, encodePlain(he, intercept));
+
+  const result = enc_result.save();
+  return result;
+}
+
+const getFallRisk = (he: any, value: any) => {
+  const { seal, context } = he.seal;
+  let enc_result = seal.CipherText();
+  const result = enc_result.save();
+  return result;
 }
 
 export const request = async (
@@ -78,17 +69,22 @@ export const request = async (
     console.log(`[+] Request received: ${ref}`)
     console.log(`[+] payload: ${JSON.stringify(value)}`);
 
-    const op1: any = await axios.get(`${NODE_URL}/get_value?ref=${value.operand1}`);
-    const op2: any = await axios.get(`${NODE_URL}/get_value?ref=${value.operand2}`);
+    let result;
+    switch (value.type) {
+      case 'cardrisk': // 심혈관질환 위험도
+        result = getCardRisk(ainJs.he, value);
+        break;
+      case 'fallrisk': // 낙상위험도
+        result = getFallRisk(ainJs.he, value);
+        break;
+      default:
+        console.log(`[-] Unknown request type: ${value.type}`);
+        res.status(StatusCodes.NOT_FOUND).json({
+          message: `Unknown request type: ${value.type}`
+        });
+        return;
+    }
 
-    const cOp1 = ainJs.he.seal.seal.CipherText();
-    const cOp2 = ainJs.he.seal.seal.CipherText();
-
-    cOp1.load(ainJs.he.seal.context, op1.data.result);
-    cOp2.load(ainJs.he.seal.context, op2.data.result);
-    ainJs.he.seal.evaluator.add(cOp1, cOp2, cOp1);
-
-    const result = cOp1.save();
 		console.log(`[+] Result for ${requestId}: ${result.substring(0, 15)}...`);
 		const resultRef = `/apps/he_health_care/tasks/response/${value.user_address}/${requestId}`;
     const tx = {

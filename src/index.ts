@@ -19,7 +19,7 @@ app.use(express.urlencoded({
 app.use(async (req, res, next) => {
   res.locals.ainJs = ainJs;
   res.locals.mainAddress = address;
-  await res.locals.ainJs.he.init();
+  await res.locals.ainJs.he.init(null, Const.DEFAULT_HE_PARAMS);
   next();
 })
 
