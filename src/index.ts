@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import heRouter from './api/he';
 import AinJs from '@ainblockchain/ain-js';
 import * as Const from './common/constants';
@@ -11,6 +12,7 @@ const ainJs = new AinJs(Const.NODE_URL);
 const address = ainJs.wallet.addFromHDWallet(Const.MNEMONIC_WORDS);
 ainJs.wallet.setDefaultAccount(address);
 
+app.use(cors());
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ 
   limit: '5mb',
