@@ -1,7 +1,19 @@
 import express from 'express';
+import axios from 'axios';
 import { StatusCodes } from 'http-status-codes';
 
+import { NODE_URL } from '../common/constants';
+
 const requestList: string[] = [];
+
+const getEncryptStrFromBlockchain = async (path: string, nodeSeal: any) => {
+  const { context, seal } = nodeSeal;
+  const str: any = await axios.get(`${NODE_URL}/get_value?ref=${path}`);
+  const cipherText = seal.CipherText();
+  cipherText.load(context, str.data.result);
+
+  return cipherText;
+}
 
 const encodePlain = (he: any, value: number, cipherText: any) => {
   const target = Float64Array.from([value]);
@@ -10,7 +22,7 @@ const encodePlain = (he: any, value: number, cipherText: any) => {
   return plainText;
 }
 
-const getCardRisk = (he: any, value: any) => {
+const getCardRisk = async (he: any, value: any) => {
   const {
     op1, /* Total Cholesterol */
     op2, /* Triglyceride */
@@ -42,10 +54,18 @@ const getCardRisk = (he: any, value: any) => {
   return result;
 }
 
-const getFallRisk = (he: any, value: any) => {
+const getFallRisk = async (he: any, value: any) => {
+  const {
+    op1Path, /* Age */
+    op2Path, /* Survey */
+  } = value;
   const { seal: nodeSeal, evaluator } = he;
-  const { context, seal } = nodeSeal;
-  let enc_result = seal.CipherText();
+
+  const cOp1 = getEncryptStrFromBlockchain(op1Path, nodeSeal);
+  const cOp2 = getEncryptStrFromBlockchain(op2Path, nodeSeal);
+
+  let enc_result = evaluator.add(cOp1, cOp2);
+
   const result = enc_result.save();
   return result;
 }
@@ -74,10 +94,10 @@ export const request = async (
     let result;
     switch (value.type) {
       case 'cardrisk': // 심혈관질환 위험도
-        result = getCardRisk(ainJs.he, value);
+        result = await getCardRisk(ainJs.he, value);
         break;
       case 'fallrisk': // 낙상위험도
-        result = getFallRisk(ainJs.he, value);
+        result = await getFallRisk(ainJs.he, value);
         break;
       default:
         console.log(`[-] Unknown request type: ${value.type}`);
