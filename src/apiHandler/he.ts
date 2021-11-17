@@ -62,15 +62,18 @@ const getCardRisk = async (he: any, value: any) => {
 
 const getFallRisk = async (he: any, value: any) => {
   const {
-    op1Path, /* Age */
-    op2Path, /* Survey */
+    op1Path,
+    op2Path,
+    op3Path,
   } = value;
   const { seal: nodeSeal, evaluator } = he;
 
   const cOp1 = await getEncryptStrFromBlockchain(op1Path, nodeSeal);
   const cOp2 = await getEncryptStrFromBlockchain(op2Path, nodeSeal);
+  const cOp3 = await getEncryptStrFromBlockchain(op3Path, nodeSeal);
 
   let enc_result = evaluator.add(cOp1, cOp2);
+  enc_result = evaluator.add(enc_result, cOp3);
 
   const result = enc_result.save();
   return result;
