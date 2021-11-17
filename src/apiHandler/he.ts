@@ -66,14 +66,12 @@ const getFallRisk = async (he: any, value: any) => {
     op2Path,
     op3Path,
   } = value;
-  const { seal: nodeSeal, evaluator } = he;
+  const cOp1 = await getEncryptStrFromBlockchain(op1Path, he.seal);
+  const cOp2 = await getEncryptStrFromBlockchain(op2Path, he.seal);
+  const cOp3 = await getEncryptStrFromBlockchain(op3Path, he.seal);
 
-  const cOp1 = await getEncryptStrFromBlockchain(op1Path, nodeSeal);
-  const cOp2 = await getEncryptStrFromBlockchain(op2Path, nodeSeal);
-  const cOp3 = await getEncryptStrFromBlockchain(op3Path, nodeSeal);
-
-  let enc_result = evaluator.add(cOp1, cOp2);
-  enc_result = evaluator.add(enc_result, cOp3);
+  let enc_result = he.seal.evaluator.add(cOp1, cOp2);
+  enc_result = he.seal.evaluator.add(enc_result, cOp3);
 
   const result = enc_result.save();
   return result;
@@ -134,7 +132,6 @@ export const request = async (
       nonce: -1,
     }
     const txRes = await ainJs.sendTransaction(tx)
-    console.log(txRes);
     if (txRes.result && txRes.result.code === 0) {
 			console.log(`[+] Write result to '${resultRef}'`);
       console.log(`[+] tx result: ${JSON.stringify(txRes)}`)
