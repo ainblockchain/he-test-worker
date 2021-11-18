@@ -117,8 +117,8 @@ export const request = async (
         return;
     }
 
-		console.log(`[+] Result for ${requestId}: ${result.substring(0, 15)}...`);
-		const resultRef = `/apps/he_health_care/tasks/response/${value.user_address}/${requestId}`;
+    console.log(`[+] Result for ${requestId}: ${result.substring(0, 15)}...`);
+    const resultRef = `/apps/he_health_care/tasks/response/${value.user_address}/${requestId}`;
     const tx: TransactionInput = {
       operation: {
         type: 'SET_VALUE',
