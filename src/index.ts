@@ -15,7 +15,7 @@ app.use(express.urlencoded({
 }));
 
 app.get('/', (req: express.Request, res: express.Response) => {
-  res.send(`Homomorphic Encryption Evaluator Worker (${res.locals.mainAddress})`);
+  res.send(`Homomorphic Encryption Evaluator Worker`);
 });
 
 // health checking
