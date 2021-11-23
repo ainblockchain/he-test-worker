@@ -36,19 +36,6 @@ const decrypted = ain.he.decrypt(result); // decrypted as Float64Array format
 ```
 
 ## APIs
-### [POST] `/he/double`
-* Body parameters
-  * `operand`: encrypted base64 string
-* Response
-  * `result`: encrypted base64 string
-    * encrypted result of `operand * 2`
-### [POST] `/he/add`
-* Body parameters
-  * `operand1`: encrypted base64 string
-  * `operand2`: encrypted base64 string
-* Response
-  * `result`: encrypted base64 string
-    * encrypted result of `operand1 + operand2`
 ### [POST] `/he/request`
 * Endpoint for blockchain based HE calculation
   * DO NOT CALL THIS ENDPOINT DIRECTLY
